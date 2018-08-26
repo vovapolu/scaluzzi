@@ -1,5 +1,8 @@
+/*
+rule = MyRule_v1
+*/
 package fix
 
-object Scaluzzi_v1_Test {
+object MyRule_v1_Test {
   // Add code that needs fixing here.
 }
