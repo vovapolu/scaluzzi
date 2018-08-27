@@ -1,4 +1,7 @@
+import sbt.Keys.skip
+
 lazy val V = _root_.scalafix.sbt.BuildInfo
+
 inThisBuild(
   List(
     organization := "com.github.vovapolu",
@@ -18,12 +21,17 @@ inThisBuild(
     scalacOptions ++= List(
       "-Yrangepos",
       "-P:semanticdb:synthetics:on"
-    )
+    ),
+    skip in publish := true
   )
 )
 
+lazy val root = project in file(".")
+
 lazy val rules = project.settings(
-  libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.scalafix
+  libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.scalafix,
+  moduleName := "scaluzzi",
+  skip in publish := false
 )
 
 lazy val input = project
