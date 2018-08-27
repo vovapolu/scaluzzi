@@ -1,6 +1,18 @@
 lazy val V = _root_.scalafix.sbt.BuildInfo
 inThisBuild(
   List(
+    organization := "???",
+    homepage := Some(url("https://github.com/???")),
+    licenses := List(
+      "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    developers := List(
+      Developer(
+        "vovapolu",
+        "Vladimir ???",
+        "vovapolu@gmail.com",
+        url("https://???.com")
+      )
+    ),
     scalaVersion := V.scala212,
     addCompilerPlugin(scalafixSemanticdb),
     scalacOptions ++= List(
