@@ -2,10 +2,6 @@ import sbt.Keys.skip
 
 lazy val V = _root_.scalafix.sbt.BuildInfo
 
-val commonSettings = List(
-  skip in publish := true
-)
-
 inThisBuild(
   List(
     organization := "com.github.vovapolu",
@@ -30,7 +26,9 @@ inThisBuild(
 )
 
 lazy val root = (project in file("."))
-  .settings(commonSettings)
+  .settings(
+    skip in publish := true
+  )
 
 lazy val rules = project.settings(
   libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.scalafix,
@@ -38,14 +36,18 @@ lazy val rules = project.settings(
 )
 
 lazy val input = project
-  .settings(commonSettings)
+  .settings(
+    skip in publish := true
+  )
 
 lazy val output = project
-  .settings(commonSettings)
+  .settings(
+    skip in publish := true
+  )
 
 lazy val tests = project
-  .settings(commonSettings)
   .settings(
+    skip in publish := true,
     libraryDependencies += "ch.epfl.scala" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full,
     scalafixTestkitOutputSourceDirectories :=
       sourceDirectories.in(output, Compile).value,
