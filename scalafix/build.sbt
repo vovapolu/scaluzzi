@@ -24,15 +24,11 @@ inThisBuild(
   )
 )
 
-lazy val root = (project in file("."))
-  .settings(
-    skip in publish := true
-  )
+skip in publish := true
 
 lazy val rules = project.settings(
   libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.scalafix,
-  moduleName := "scaluzzi",
-  skip in publish := false
+  moduleName := "scaluzzi"
 )
 
 lazy val input = project
