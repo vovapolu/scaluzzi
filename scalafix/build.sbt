@@ -1,16 +1,16 @@
 lazy val V = _root_.scalafix.sbt.BuildInfo
 inThisBuild(
   List(
-    organization := "???",
-    homepage := Some(url("https://github.com/???")),
+    organization := "com.github.vovapolu",
+    homepage := Some(url("https://github.com/vovapolu/scaluzzi")),
     licenses := List(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
       Developer(
         "vovapolu",
-        "Vladimir ???",
+        "Vladimir Polushin",
         "vovapolu@gmail.com",
-        url("https://???.com")
+        url("https://vovapolu.github.io")
       )
     ),
     scalaVersion := V.scala212,
