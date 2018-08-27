@@ -1,9 +1,0 @@
--Dfile.encoding=UTF8
--Xss8m
--Xms1G
--Xmx4G
--XX:ReservedCodeCacheSize=250M
--XX:+TieredCompilation
--XX:-UseGCOverheadLimit
--XX:+CMSClassUnloadingEnabled
--XX:+UseConcMarkSweepGC
