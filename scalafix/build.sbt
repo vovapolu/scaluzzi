@@ -1,4 +1,3 @@
-import sbt.Keys.skip
 
 lazy val V = _root_.scalafix.sbt.BuildInfo
 
@@ -32,7 +31,8 @@ lazy val root = (project in file("."))
 
 lazy val rules = project.settings(
   libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.scalafix,
-  moduleName := "scaluzzi"
+  moduleName := "scaluzzi",
+  skip in publish := false
 )
 
 lazy val input = project
