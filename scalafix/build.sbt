@@ -2,6 +2,10 @@ import sbt.Keys.skip
 
 lazy val V = _root_.scalafix.sbt.BuildInfo
 
+val commonSettings = List(
+  skip in publish := true
+)
+
 inThisBuild(
   List(
     organization := "com.github.vovapolu",
@@ -21,24 +25,26 @@ inThisBuild(
     scalacOptions ++= List(
       "-Yrangepos",
       "-P:semanticdb:synthetics:on"
-    ),
-    skip in publish := true
+    )
   )
 )
 
-lazy val root = project in file(".")
+lazy val root = (project in file("."))
+  .settings(commonSettings)
 
 lazy val rules = project.settings(
   libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.scalafix,
-  moduleName := "scaluzzi",
-  skip in publish := false
+  moduleName := "scaluzzi"
 )
 
 lazy val input = project
+  .settings(commonSettings)
 
 lazy val output = project
+  .settings(commonSettings)
 
 lazy val tests = project
+  .settings(commonSettings)
   .settings(
     libraryDependencies += "ch.epfl.scala" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full,
     scalafixTestkitOutputSourceDirectories :=
