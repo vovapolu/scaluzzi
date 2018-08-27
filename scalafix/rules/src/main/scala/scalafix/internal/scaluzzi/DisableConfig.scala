@@ -1,4 +1,4 @@
-package scalafix.internal.rule
+package scalafix.internal.scaluzzi
 
 import metaconfig._
 import metaconfig.annotation.{Description, ExampleValue}

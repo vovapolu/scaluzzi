@@ -1,4 +1,4 @@
-package scalafix.internal.rule
+package scalafix.internal.scaluzzi
 
 import metaconfig.{Conf, Configured}
 import scala.meta._

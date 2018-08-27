@@ -1,1 +1,2 @@
-fix.MyRule_v1
+scalafix.internal.scaluzzi.MissingFinal
+scalafix.internal.scaluzzi.DisableLegacy

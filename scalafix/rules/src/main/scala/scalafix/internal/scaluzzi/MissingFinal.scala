@@ -1,4 +1,4 @@
-package scalafix.internal.rule
+package scalafix.internal.scaluzzi
 
 import scala.meta._
 import scalafix.v1._
