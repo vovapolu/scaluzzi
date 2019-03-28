@@ -8,7 +8,7 @@ class MissingFinal extends SemanticRule("MissingFinal") {
   override def description: String =
     "Rule that checks for or adds final modifier in the corresponding places"
 
-  override def fix(implicit sdoc: SemanticDoc): Patch = {
+  override def fix(implicit sdoc: SemanticDocument): Patch = {
     def isSealed(tpe: Type): Boolean = {
       tpe.symbol.info.exists(_.isSealed)
     }
