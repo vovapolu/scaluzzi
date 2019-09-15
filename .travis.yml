@@ -31,3 +31,6 @@ before_cache:
 
 before_install:
 - git fetch --tags
+
+dist: trusty
+
