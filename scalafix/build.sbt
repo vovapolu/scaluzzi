@@ -1,6 +1,4 @@
 
-lazy val V = _root_.scalafix.Versions
-
 inThisBuild(
   List(
     organization := "com.github.vovapolu",
@@ -27,7 +25,7 @@ inThisBuild(
 skip in publish := true
 
 lazy val rules = project.settings(
-  libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.version,
+  libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.scalafix,
   moduleName := "scaluzzi"
 )
 
@@ -44,7 +42,7 @@ lazy val output = project
 lazy val tests = project
   .settings(
     skip in publish := true,
-    libraryDependencies += "ch.epfl.scala" % "scalafix-testkit" % V.version % Test cross CrossVersion.full,
+    libraryDependencies += "ch.epfl.scala" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full,
     scalafixTestkitOutputSourceDirectories :=
       sourceDirectories.in(output, Compile).value,
     scalafixTestkitInputSourceDirectories :=
