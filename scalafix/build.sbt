@@ -14,7 +14,7 @@ inThisBuild(
       )
     ),
     scalaVersion := V.scala212,
-    addCompilerPlugin(scalafixSemanticdb("4.3.10")),
+    addCompilerPlugin(scalafixSemanticdb("4.3.13")),
     scalacOptions ++= List(
       "-Yrangepos",
       "-P:semanticdb:synthetics:on"
