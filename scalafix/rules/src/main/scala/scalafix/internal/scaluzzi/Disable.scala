@@ -160,7 +160,7 @@ final case class Disable(index: SemanticdbIndex, config: DisableConfig)
 
   private def checkSynthetics(ctx: RuleCtx): Seq[Diagnostic] = {
     for {
-      synthetic <- ctx.index.synthetics.view
+      synthetic <- ctx.index.synthetics
       ResolvedName(
         pos,
         disabledSymbolInSynthetics(symbol @ Symbol.Global(_, _), disabled),
