@@ -13,7 +13,7 @@ inThisBuild(
         url("https://vovapolu.github.io")
       )
     ),
-    scalaVersion := V.scala213,
+    scalaVersion := V.scala212,
     addCompilerPlugin(scalafixSemanticdb("4.3.13")),
     scalacOptions ++= List(
       "-Yrangepos",
