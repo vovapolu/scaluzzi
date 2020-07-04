@@ -7,5 +7,5 @@ They consist of `Disable` and `MissingFinal` rules.
 ### Installation 
 
 ```sbt
-scalafixDependencies += "com.github.vovapolu" %% "scaluzzi" % "0.1.9"
+scalafixDependencies += "com.github.vovapolu" %% "scaluzzi" % "0.1.10"
 ```
