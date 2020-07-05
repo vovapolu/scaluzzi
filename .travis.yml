@@ -10,9 +10,9 @@ stages:
 jobs:
   include:
   - env: TEST="tests"
-    script: cd scalafix && sbt tests/test
+    script: cd scalafix && sbt +tests/test
   - stage: release
-    script: cd scalafix && sbt ci-release
+    script: cd scalafix && sbt +ci-release
 
 cache:
   directories:
