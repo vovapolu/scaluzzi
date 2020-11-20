@@ -53,7 +53,7 @@ case object DisableSimple {
   }
   val yy = AA.asInstanceOf // OK, no errors
   Option(1).get /* assert: Disable.Option.get
-            ^
+            ^^^
 Option.get is the root of all evils
 
 If you must Option.get, wrap the code block with
@@ -63,7 +63,7 @@ If you must Option.get, wrap the code block with
 */
   val l: ListBuffer[Int] = scala.collection.mutable.ListBuffer.empty[Int] // assert: Disable.mutable
   List(1) + "any2stringadd" /* assert: Disable.any2stringadd
-  ^
+  ^^^^^^^
 any2stringadd is disabled and it got inferred as `Predef.any2stringadd[List[Int]](*)`
   */
 
