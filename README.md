@@ -9,5 +9,5 @@ Cross-build against Scala 2.12.12 and 2.13.3.
 ### Installation 
 
 ```sbt
-scalafixDependencies += "com.github.vovapolu" %% "scaluzzi" % "0.1.13"
+scalafixDependencies += "com.github.vovapolu" %% "scaluzzi" % "0.1.15"
 ```
