@@ -16,7 +16,7 @@ inThisBuild(
     ),
     scalaVersion := V.scala212,
     crossScalaVersions := List(V.scala212, V.scala213),
-    addCompilerPlugin(scalafixSemanticdb("4.4.10")),
+    addCompilerPlugin(scalafixSemanticdb("4.4.20")),
     scalacOptions ++= List(
       "-Yrangepos",
       "-P:semanticdb:synthetics:on"
@@ -24,7 +24,7 @@ inThisBuild(
   )
 )
 
-skip in publish := true
+publish / skip := true
 
 lazy val rules = project.settings(
   libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.scalafixVersion,
@@ -33,24 +33,24 @@ lazy val rules = project.settings(
 
 lazy val input = project
   .settings(
-    skip in publish := true
+    publish / skip := true
   )
 
 lazy val output = project
   .settings(
-    skip in publish := true
+    publish / skip := true
   )
 
 lazy val tests = project
   .settings(
-    skip in publish := true,
+    publish / skip := true,
     libraryDependencies += "ch.epfl.scala" % "scalafix-testkit" % V.scalafixVersion % Test cross CrossVersion.full,
     scalafixTestkitOutputSourceDirectories :=
-      sourceDirectories.in(output, Compile).value,
+      (output / Compile / sourceDirectories).value,
     scalafixTestkitInputSourceDirectories :=
-      sourceDirectories.in(input, Compile).value,
+      (input / Compile / sourceDirectories).value,
     scalafixTestkitInputClasspath :=
-      fullClasspath.in(input, Compile).value
+      (input / Compile / fullClasspath).value
   )
   .dependsOn(input, rules)
   .enablePlugins(ScalafixTestkitPlugin)
