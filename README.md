@@ -6,10 +6,10 @@ Addtional rules for [scalafix](https://github.com/scalacenter/scalafix) that ens
 
 They consist of `Disable` and `MissingFinal` rules. 
 
-Cross-build against Scala 2.12.13 and 2.13.6.
+Cross-published against Scala 2.12 and 2.13.
 
 ### Installation 
 
 ```sbt
-scalafixDependencies += "com.github.vovapolu" %% "scaluzzi" % "0.1.18"
+scalafixDependencies += "com.github.vovapolu" %% "scaluzzi" % "0.1.20"
 ```
