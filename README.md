@@ -4,7 +4,7 @@ Addtional rules for [scalafix](https://github.com/scalacenter/scalafix) that ens
 
 They consist of `Disable` and `MissingFinal` rules. 
 
-Cross-build against Scala 2.12.14 and 2.13.6.
+Cross-published against Scala 2.12 and 2.13.
 
 ### Installation 
 
