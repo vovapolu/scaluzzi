@@ -2,6 +2,7 @@
 *.log
 
 # sbt specific
+scalafix/.bsp/
 .cache
 .history
 .lib/
