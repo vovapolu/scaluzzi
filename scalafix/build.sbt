@@ -14,9 +14,9 @@ inThisBuild(
         url("https://vovapolu.github.io")
       )
     ),
-    scalaVersion := V.scala212,
+    scalaVersion := V.scala213,
     crossScalaVersions := List(V.scala212, V.scala213),
-    addCompilerPlugin(scalafixSemanticdb("4.4.31")),
+    addCompilerPlugin(scalafixSemanticdb("4.5.3")),
     scalacOptions ++= List(
       "-Yrangepos",
       "-P:semanticdb:synthetics:on"
