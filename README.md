@@ -11,5 +11,5 @@ Cross-published against Scala 2.12 and 2.13.
 ### Installation 
 
 ```sbt
-scalafixDependencies += "com.github.vovapolu" %% "scaluzzi" % "0.1.21"
+scalafixDependencies += "com.github.vovapolu" %% "scaluzzi" % "0.1.22"
 ```
