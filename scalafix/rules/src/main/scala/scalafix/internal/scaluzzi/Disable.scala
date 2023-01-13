@@ -1,12 +1,13 @@
 package scalafix.internal.scaluzzi
 
 import metaconfig.{Conf, Configured}
+
 import scala.meta._
 import scala.meta.transversers.Traverser
-import scalafix.internal.v0.InputSynthetic
 import scalafix.internal.util.SymbolOps
-import scalafix.internal.v0.LegacySemanticRule
-import scalafix.v0._
+import scalafix.v1._
+
+import scala.annotation.tailrec
 
 object Disable {
 
@@ -45,74 +46,72 @@ object Disable {
     }
   }
 
-  final class DisableSymbolMatcher(symbols: List[DisabledSymbol])(
-      implicit index: SemanticdbIndex) {
+  final class DisableSymbolMatcher(symbols: List[DisabledSymbol]) {
     def findMatch(symbol: Symbol): Option[DisabledSymbol] =
       symbols.find(_.matches(symbol))
 
-    def unapply(tree: Tree): Option[(Tree, DisabledSymbol)] =
-      index
-        .symbol(tree)
-        .flatMap(findMatch(_).map(ds => (tree, ds)))
+    def unapply(tree: Tree)(implicit doc: SemanticDocument): Option[(Tree, DisabledSymbol)] =
+      findMatch(tree.symbol).map(ds => (tree, ds))
 
     def unapply(symbol: Symbol): Option[(Symbol, DisabledSymbol)] =
       findMatch(symbol).map(ds => (symbol, ds))
   }
 }
 
-final case class Disable(index: SemanticdbIndex, config: DisableConfig)
-    extends SemanticRule(index, "Disable") {
+case class DisableDiagnostic(symbol: Symbol, details: String, position: Position) extends Diagnostic {
+  override def message: String =
+    s"${symbol.structure} is disabled $details"
+
+}
+
+
+final case class Disable(config: DisableConfig)
+    extends SemanticRule("Disable") {
 
   import Disable._
-
-  private lazy val errorCategory: LintCategory =
-    LintCategory.error(
-      """Some constructs are unsafe to use and should be avoided""".stripMargin
-    )
 
   override def description: String =
     "Linter that reports an error on a configurable set of symbols."
 
-  override def init(config: Conf): Configured[Rule] =
-    config
-      .getOrElse("disable", "Disable")(DisableConfig.default)
-      .map(Disable(index, _))
+  override def withConfiguration(config: Configuration): Configured[Rule] = {
+    // should this use DisableConfig.default?
+    config.conf.getOrElse("disable", "Disable")(this.config).map { newConfig => Disable(newConfig) }
+  }
 
   private val safeBlocks = new DisableSymbolMatcher(config.allSafeBlocks)
   private val disabledSymbolInSynthetics =
     new DisableSymbolMatcher(config.ifSynthetic)
 
   private def createLintMessage(
-      symbol: Symbol.Global,
+      symbol: Symbol,
       disabled: DisabledSymbol,
       pos: Position,
       details: String = ""): Diagnostic = {
-    val message = disabled.message.getOrElse(
-      s"${symbol.signature.name} is disabled$details")
-
-    val id = disabled.id.getOrElse(symbol.signature.name)
-
-    errorCategory
-      .copy(id = id)
-      .at(message, pos)
+    //    val message = disabled.message.getOrElse(
+    //      s"${symbol.signature.name} is disabled$details")
+    //
+    //    val id = disabled.id.getOrElse(symbol.signature.name)
+    //
+    //    errorCategory
+    //      .copy(id = id)
+    //      .at(message, pos)
+    DisableDiagnostic(symbol, details = details, position = pos)
   }
 
-  private def checkTree(ctx: RuleCtx): Seq[Diagnostic] = {
+  private def checkTree(implicit doc: SemanticDocument): Seq[Patch] = {
     def filterBlockedSymbolsInBlock(
         blockedSymbols: List[DisabledSymbol],
-        block: Tree): List[DisabledSymbol] =
-      ctx.index.symbol(block) match {
-        case Some(symbolBlock: Symbol.Global) =>
-          val symbolsInMatchedBlocks =
-            config.unlessInside.flatMap(
-              u =>
-                if (u.safeBlocks.exists(_.matches(symbolBlock))) u.symbols
-                else List.empty)
-          val res = blockedSymbols.filterNot(symbolsInMatchedBlocks.contains)
-          res
-        case _ => blockedSymbols
-      }
+        block: Tree): List[DisabledSymbol] = {
+       val symbolBlock = block.symbol
+       val symbolsInMatchedBlocks =
+         config.unlessInside.flatMap(
+           u =>
+             if (u.safeBlocks.exists(_.matches(symbolBlock))) u.symbols
+             else List.empty)
+       blockedSymbols.filterNot(symbolsInMatchedBlocks.contains)
+     }
 
+    @tailrec
     def skipTermSelect(term: Term): Boolean = term match {
       case _: Term.Name => true
       case Term.Select(q, _) => skipTermSelect(q)
@@ -120,16 +119,17 @@ final case class Disable(index: SemanticdbIndex, config: DisableConfig)
     }
 
     def handleName(t: Name, blockedSymbols: List[DisabledSymbol])
-      : Either[Diagnostic, List[DisabledSymbol]] = {
+      : Either[Patch, List[DisabledSymbol]] = {
       val isBlocked = new DisableSymbolMatcher(blockedSymbols)
-      ctx.index.symbol(t) match {
-        case Some(isBlocked(s: Symbol.Global, disabled)) =>
-          SymbolOps.normalize(s) match {
-            case g: Symbol.Global if g.signature.name != "<init>" =>
-              Left(createLintMessage(g, disabled, t.pos))
-            case _ => Right(blockedSymbols)
-          }
-        case _ => Right(blockedSymbols)
+      val s = t.symbol
+      isBlocked.findMatch(s).map { disabled =>
+        SymbolOps.normalize(s) match {
+          case g: Symbol if g.info.get.signature.toString() != "<init>" =>
+            Left(Patch.lint(DisableDiagnostic(s, "", t.pos)).atomic) // XXX this is incorrect
+          case _ => Right(blockedSymbols)
+        }
+      }.getOrElse {
+        Right(blockedSymbols)
       }
     }
 
@@ -155,10 +155,11 @@ final case class Disable(index: SemanticdbIndex, config: DisableConfig)
         Right(config.allDisabledSymbols) // reset blocked symbols in (...) => (...)
       case (t: Name, blockedSymbols) =>
         handleName(t, blockedSymbols)
-    }).result(ctx.tree)
+    }).result(doc.tree)
   }
 
-  private def checkSynthetics(ctx: RuleCtx): Seq[Diagnostic] = {
+  // XXX what goes here?
+  private def checkSynthetics(implicit doc: SemanticDocument): Seq[Patch] = {
     for {
       synthetic <- ctx.index.synthetics
       ResolvedName(
@@ -176,16 +177,10 @@ final case class Disable(index: SemanticdbIndex, config: DisableConfig)
         case _ =>
           "" -> pos
       }
-      createLintMessage(symbol, disabled, caret, details)
+      Patch.lint(createLintMessage(symbol, disabled, caret, details)).atomic
     }
   }
-
-  override def check(ctx: RuleCtx): Seq[Diagnostic] = {
-    checkTree(ctx) ++ checkSynthetics(ctx)
+  override def fix(implicit doc: SemanticDocument): Patch = {
+    (checkTree ++ checkSynthetics).asPatch
   }
 }
-
-class DisableLegacy()
-    extends LegacySemanticRule(
-      "Disable",
-      index => Disable(index, DisableConfig.default))
