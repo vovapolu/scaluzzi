@@ -159,28 +159,29 @@ final case class Disable(config: DisableConfig)
   }
 
   // XXX what goes here?
-  private def checkSynthetics(implicit doc: SemanticDocument): Seq[Patch] = {
-    for {
-      synthetic <- ctx.index.synthetics
-      ResolvedName(
-        pos,
-        disabledSymbolInSynthetics(symbol @ Symbol.Global(_, _), disabled),
-        false
-      ) <- synthetic.names
-    } yield {
-      val (details, caret) = pos.input match {
-        case synth @ Input.Stream(InputSynthetic(_, input, start, end), _) =>
-          // For synthetics the caret should point to the original position
-          // but display the inferred code.
-          s" and it got inferred as `${synth.text}`" ->
-            Position.Range(input, start, end)
-        case _ =>
-          "" -> pos
-      }
-      Patch.lint(createLintMessage(symbol, disabled, caret, details)).atomic
-    }
-  }
+  //  private def checkSynthetics(implicit doc: SemanticDocument): Seq[Patch] = {
+  //    for {
+  //      synthetic <- ctx.index.synthetics
+  //      ResolvedName(
+  //        pos,
+  //        disabledSymbolInSynthetics(symbol @ Symbol.Global(_, _), disabled),
+  //        false
+  //      ) <- synthetic.names
+  //    } yield {
+  //      val (details, caret) = pos.input match {
+  //        case synth @ Input.Stream(InputSynthetic(_, input, start, end), _) =>
+  //          // For synthetics the caret should point to the original position
+  //          // but display the inferred code.
+  //          s" and it got inferred as `${synth.text}`" ->
+  //            Position.Range(input, start, end)
+  //        case _ =>
+  //          "" -> pos
+  //      }
+  //      Patch.lint(createLintMessage(symbol, disabled, caret, details)).atomic
+  //    }
+  //  }
+  
   override def fix(implicit doc: SemanticDocument): Patch = {
-    (checkTree ++ checkSynthetics).asPatch
+    (checkTree).asPatch
   }
 }
