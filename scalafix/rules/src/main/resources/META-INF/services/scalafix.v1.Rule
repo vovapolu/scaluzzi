@@ -1,2 +1,2 @@
 scalafix.internal.scaluzzi.MissingFinal
-scalafix.internal.scaluzzi.DisableLegacy
+scalafix.internal.scaluzzi.Disable

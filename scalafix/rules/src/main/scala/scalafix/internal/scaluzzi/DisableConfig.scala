@@ -3,15 +3,14 @@ package scalafix.internal.scaluzzi
 import metaconfig._
 import metaconfig.annotation.{Description, ExampleValue}
 import metaconfig.generic.Surface
-import scalafix.v0.Symbol
-import scalafix.internal.util.SymbolOps
+import scalafix.v1.Symbol
 import scalafix.internal.config._
 
 case class DisabledSymbol(
     @ExampleValue("scala.sys.process.Process")
     @Description(
       "A single symbol to ban. Cannot be used together with the regex option.")
-    symbol: Option[Symbol.Global],
+    symbol: Option[Symbol],
     @Description("Custom message.")
     message: Option[String],
     @Description("Custom id for error messages.")
@@ -33,7 +32,7 @@ case class DisabledSymbol(
   def matches(symbol: Symbol): Boolean = {
     this.symbol match {
       case Some(s) =>
-        SymbolOps.isSameNormalized(symbol, s)
+        symbol.normalized.equals(s.normalized)
       case None =>
         regex match {
           case Some(r) => r.matches(symbol.toString)
@@ -53,10 +52,14 @@ object DisabledSymbol {
     } else {
       msg
     }
+
+  implicit lazy val symbolV1Reader: ConfDecoder[Symbol] =
+    ConfDecoder.stringConfDecoder.map(Symbol.apply)
+
   implicit val reader: ConfDecoder[DisabledSymbol] =
     ConfDecoder.instance[DisabledSymbol] {
       case c: Conf.Obj =>
-        (c.getOption[Symbol.Global]("symbol") |@|
+        (c.getOption[Symbol]("symbol") |@|
           c.getOption[String]("message") |@|
           c.getOption[String]("id") |@|
           c.getOption[FilterMatcher]("regex"))
@@ -73,7 +76,7 @@ object DisabledSymbol {
                 ConfError.message("Either symbol or regex must be specified."))
           }
       case s: Conf.Str =>
-        symbolGlobalReader
+        symbolV1Reader
           .read(s)
           .map(sym => DisabledSymbol(Some(sym), None, None, None))
     }
