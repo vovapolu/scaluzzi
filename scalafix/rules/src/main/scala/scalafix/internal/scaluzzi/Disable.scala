@@ -73,6 +73,8 @@ final case class Disable(config: DisableConfig)
   override def description: String =
     "Linter that reports an error on a configurable set of symbols."
 
+  def this() = this(DisableConfig.default)
+
   override def withConfiguration(config: Configuration): Configured[Rule] = {
     // should this use DisableConfig.default?
     config.conf.getOrElse("disable", "Disable")(this.config).map { newConfig => Disable(newConfig) }
@@ -124,8 +126,17 @@ final case class Disable(config: DisableConfig)
       val s = t.symbol
       isBlocked.findMatch(s).map { disabled =>
         SymbolOps.normalize(s) match {
-          case g: Symbol if g.info.get.signature.toString() != "<init>" =>
-            Left(Patch.lint(DisableDiagnostic(s, "", t.pos)).atomic) // XXX this is incorrect
+          case g: Symbol =>
+            g.info match {
+              case Some(info) =>
+                if (info.signature.toString() != "<init>") {
+                  Left(Patch.lint(DisableDiagnostic(s, "", t.pos)).atomic) // XXX this is incorrect
+                } else {
+                  Right(blockedSymbols)
+                }
+              case None =>
+                Right(blockedSymbols)
+            }
           case _ => Right(blockedSymbols)
         }
       }.getOrElse {
@@ -180,7 +191,7 @@ final case class Disable(config: DisableConfig)
   //      Patch.lint(createLintMessage(symbol, disabled, caret, details)).atomic
   //    }
   //  }
-  
+
   override def fix(implicit doc: SemanticDocument): Patch = {
     (checkTree).asPatch
   }
