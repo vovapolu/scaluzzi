@@ -84,6 +84,7 @@ final case class Disable(config: DisableConfig)
   private val disabledSymbolInSynthetics =
     new DisableSymbolMatcher(config.ifSynthetic)
 
+  // https://github.com/vovapolu/scaluzzi/blob/master/scalafix/rules/src/main/scala/scalafix/internal/scaluzzi/Disable.scala#L85
   private def createLintMessage(
       symbol: Symbol,
       disabled: DisabledSymbol,
@@ -100,6 +101,7 @@ final case class Disable(config: DisableConfig)
     DisableDiagnostic(symbol, details = details, position = pos)
   }
 
+  // https://github.com/vovapolu/scaluzzi/blob/master/scalafix/rules/src/main/scala/scalafix/internal/scaluzzi/Disable.scala#L100
   private def checkTree(implicit doc: SemanticDocument): Seq[Patch] = {
     def filterBlockedSymbolsInBlock(
         blockedSymbols: List[DisabledSymbol],
@@ -120,6 +122,7 @@ final case class Disable(config: DisableConfig)
       case _ => false
     }
 
+    // https://github.com/vovapolu/scaluzzi/blob/master/scalafix/rules/src/main/scala/scalafix/internal/scaluzzi/Disable.scala#L122
     def handleName(t: Name, blockedSymbols: List[DisabledSymbol])
       : Either[Patch, List[DisabledSymbol]] = {
       val isBlocked = new DisableSymbolMatcher(blockedSymbols)
@@ -129,6 +132,7 @@ final case class Disable(config: DisableConfig)
           case g: Symbol =>
             g.info match {
               case Some(info) =>
+                // use disabled signal
                 if (info.signature.toString() != "<init>") {
                   Left(Patch.lint(DisableDiagnostic(s, "", t.pos)).atomic) // XXX this is incorrect
                 } else {
@@ -169,6 +173,7 @@ final case class Disable(config: DisableConfig)
     }).result(doc.tree)
   }
 
+  // https://github.com/vovapolu/scaluzzi/blob/master/scalafix/rules/src/main/scala/scalafix/internal/scaluzzi/Disable.scala#L161
   // XXX what goes here?
   //  private def checkSynthetics(implicit doc: SemanticDocument): Seq[Patch] = {
   //    for {
